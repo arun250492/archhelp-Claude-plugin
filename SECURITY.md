@@ -10,7 +10,7 @@
 
 Please **do not** open a public GitHub issue for security vulnerabilities.
 
-Report security issues by emailing **security@your-domain.com** (replace with your address).
+Report security issues by emailing **arun250492@gmail.com** .
 You will receive a response within **72 hours**.
 
 Please include:
