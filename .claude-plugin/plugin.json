@@ -1,0 +1,52 @@
+{
+  "name": "archhelp-claude-plugin",
+  "description": "Scan any GitHub repository and generate technical architecture diagrams, data flow diagrams, ER diagrams, component maps, sequence diagrams, and deployment topologies — all rendered as Mermaid diagrams inline in Claude.",
+  "version": "1.0.0",
+  "author": {
+    "name": "arun250492",
+    "url": "https://github.com/arun250492/archhelp-Claude-plugin"
+  },
+  "homepage": "https://github.com/arun250492/archhelp-Claude-plugin",
+  "repository": "https://github.com/arun250492/archhelp-Claude-plugin",
+  "license": "MIT",
+  "keywords": [
+    "github",
+    "architecture",
+    "diagrams",
+    "mermaid",
+    "data-flow",
+    "erd",
+    "sequence-diagram",
+    "component-diagram",
+    "code-analysis",
+    "visualization",
+    "devtools",
+    "reverse-engineering"
+  ],
+  "categories": [
+    "developer-tools",
+    "code-analysis",
+    "documentation"
+  ],
+  "minClaudeVersion": "3.5",
+  "privacy": {
+    "dataCollection": false,
+    "dataRetention": "none",
+    "externalServices": ["api.github.com"],
+    "notes": "The plugin fetches repository metadata and source file content from the GitHub REST API. No data is stored or forwarded to any service other than GitHub. The optional GITHUB_TOKEN is read from the environment and never logged or included in tool responses."
+  },
+  "permissions": [
+    {
+      "type": "network",
+      "hosts": ["api.github.com"],
+      "reason": "Required to fetch repository file trees and source content for analysis."
+    }
+  ],
+  "configuration": {
+    "GITHUB_TOKEN": {
+      "description": "GitHub Personal Access Token. Increases API rate limit from 60 to 5,000 req/hr. Requires read:repo scope. Create one at https://github.com/settings/tokens",
+      "required": false,
+      "sensitive": true
+    }
+  }
+}

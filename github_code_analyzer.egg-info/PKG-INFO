@@ -1,0 +1,271 @@
+Metadata-Version: 2.4
+Name: github-code-analyzer
+Version: 1.0.0
+Summary: MCP server: scan GitHub repos and generate technical architecture diagrams
+License: MIT License
+        
+        Copyright (c) 2026 github-code-analyzer contributors
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+        
+Project-URL: Homepage, https://github.com/your-username/github-code-analyzer
+Project-URL: Repository, https://github.com/your-username/github-code-analyzer
+Project-URL: Bug Tracker, https://github.com/your-username/github-code-analyzer/issues
+Project-URL: Changelog, https://github.com/your-username/github-code-analyzer/blob/main/CHANGELOG.md
+Keywords: mcp,claude,github,architecture,diagrams,mermaid,data-flow,erd,devtools
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Documentation
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: mcp>=1.0.0
+Requires-Dist: httpx>=0.27.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.23; extra == "dev"
+Requires-Dist: respx>=0.21; extra == "dev"
+Requires-Dist: ruff>=0.4; extra == "dev"
+Requires-Dist: mypy>=1.10; extra == "dev"
+Requires-Dist: pytest-cov>=5.0; extra == "dev"
+Dynamic: license-file
+
+# GitHub Code Analyzer — Claude Plugin
+
+[![CI](https://github.com/your-username/github-code-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/your-username/github-code-analyzer/actions/workflows/ci.yml)
+[![Coverage](https://codecov.io/gh/your-username/github-code-analyzer/branch/main/graph/badge.svg)](https://codecov.io/gh/your-username/github-code-analyzer)
+[![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)](https://www.python.org)
+[![MCP](https://img.shields.io/badge/protocol-MCP-purple)](https://modelcontextprotocol.io)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
+Scan any public (or private, with a token) GitHub repository and instantly generate six types of technical diagram:
+
+| Diagram | What it shows |
+|---------|--------------|
+| **Architecture** | Layered topology: client → API → services → database → infra |
+| **Data Flow** | Request lifecycle, auth steps, cache branches, async queues |
+| **ER Diagram** | ORM entities and foreign-key relationships |
+| **Sequence** | Actor interactions across a numbered request/response cycle |
+| **Component Map** | Module-level import dependency graph |
+| **Deployment** | Container, IaC, and CI/CD infrastructure topology |
+
+All output is [Mermaid](https://mermaid.js.org/) rendered inline in Claude.
+
+---
+
+## Quick start
+
+### 1. Install
+
+```bash
+# From the published plugin directory
+claude plugin install github-code-analyzer
+
+# Or from a local clone
+git clone https://github.com/your-username/github-code-analyzer
+claude plugin install ./github-code-analyzer
+```
+
+### 2. (Recommended) Add a GitHub token
+
+Without a token you are limited to **60 unauthenticated GitHub API requests / hour**.
+With a token the limit rises to **5,000 / hour**.
+
+```bash
+# https://github.com/settings/tokens → New token → read:repo scope
+export GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
+```
+
+Or set it permanently in `~/.claude/settings.json`:
+
+```json
+{
+  "mcpServers": {
+    "github-code-analyzer": {
+      "env": { "GITHUB_TOKEN": "ghp_xxx" }
+    }
+  }
+}
+```
+
+### 3. Ask Claude
+
+```
+Analyse the architecture of https://github.com/vercel/next.js
+```
+```
+Generate an ER diagram for github.com/prisma/prisma
+```
+```
+Show me the data flow for django/django
+```
+```
+Map out the component dependencies in fastapi/fastapi
+```
+
+---
+
+## Tools reference
+
+| Tool | Description |
+|------|-------------|
+| `analyze_repository` | Run all 6 diagrams + overview in a single call |
+| `generate_architecture_diagram` | Layered system architecture (Mermaid `graph TB`) |
+| `generate_data_flow_diagram` | Request lifecycle with auth, cache, and queue paths |
+| `generate_er_diagram` | Entity-Relationship from ORM model definitions |
+| `generate_sequence_diagram` | Numbered actor sequence with cache hit/miss branches |
+| `generate_component_diagram` | Import-based module dependency graph |
+| `generate_deployment_diagram` | Container, IaC, and CI/CD infra topology |
+| `get_repo_overview` | Plain-text structural summary (file counts, routes, models, …) |
+
+### Optional parameters
+
+`analyze_repository` accepts a `max_files` parameter (default `80`, max `300`) to
+control how many source files are read for deep analysis:
+
+```
+Analyse fastapi/fastapi with max_files=200
+```
+
+---
+
+## Supported technologies
+
+### Frameworks (auto-detected)
+
+React · Next.js · Nuxt.js · Vue · SvelteKit · Django · FastAPI / Flask ·
+Rails · Spring Boot · Laravel · Express · NestJS
+
+### ORM / Schema (for ER diagrams)
+
+Django ORM · SQLAlchemy · Prisma · TypeORM · Sequelize · ActiveRecord · Mongoose
+
+### Infrastructure
+
+Docker · Docker Compose · Kubernetes · Helm · Terraform ·
+GitHub Actions · GitLab CI · CircleCI · Nginx
+
+### External services (detected in architecture / deployment)
+
+Auth / JWT · Redis / Cache · Message Queues (Celery, RabbitMQ, Kafka, Sidekiq) ·
+Email (SendGrid, SES, Mailgun) · Storage (S3, GCS, Cloudinary) ·
+Search (Elasticsearch, Algolia) · Payments (Stripe, PayPal) ·
+Monitoring (Sentry, Datadog, Prometheus, OpenTelemetry)
+
+### Languages (source analysis)
+
+Python · TypeScript · JavaScript · Go · Java · Ruby · Rust · C# · PHP · Kotlin
+
+---
+
+## Security
+
+- **No raw file content in responses.** Source files are consumed by the
+  analyser and converted to structured data (model names, route paths, import
+  graphs). Only synthesised Mermaid diagrams are returned, preventing
+  prompt-injection attacks embedded in repository source.
+- **Strict input validation.** Repo identifiers are validated against GitHub's
+  naming rules before any network request is made.
+- **Token never logged.** `GITHUB_TOKEN` is read from the environment only and
+  is never included in tool output or server logs.
+
+See [SECURITY.md](SECURITY.md) for the full security policy and responsible
+disclosure process.
+
+---
+
+## Requirements
+
+- Python 3.11 or 3.12
+- Dependencies: `mcp>=1.0.0`, `httpx>=0.27.0`
+
+```bash
+pip install -r server/requirements.txt
+# or
+pip install -e .
+```
+
+---
+
+## Development
+
+```bash
+git clone https://github.com/your-username/github-code-analyzer
+cd github-code-analyzer
+python -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
+
+# Run tests (≥ 80% coverage required)
+pytest
+
+# Lint + format + type-check
+ruff check server/ tests/
+ruff format server/ tests/
+mypy server/
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
+
+---
+
+## Project structure
+
+```
+github-code-analyzer/
+├── .claude-plugin/
+│   └── plugin.json          ← Plugin marketplace manifest
+├── .github/
+│   └── workflows/
+│       └── ci.yml           ← CI: lint, type-check, test, security scan
+├── server/
+│   ├── __init__.py
+│   ├── main.py              ← MCP server entry point (8 tools)
+│   ├── analyzer.py          ← Static analysis (models, routes, imports, services)
+│   ├── diagrams.py          ← Mermaid diagram generators (6 types)
+│   ├── github_client.py     ← GitHub API client with retry / back-off
+│   └── security.py          ← Input validation + sanitisation
+├── tests/
+│   ├── conftest.py          ← Shared fixtures
+│   ├── test_security.py     ← Input validation tests
+│   ├── test_analysis.py     ← Analyser unit tests
+│   ├── test_diagrams.py     ← Diagram generator unit tests
+│   └── test_integration.py  ← Full pipeline tests (mocked HTTP)
+├── examples/
+│   └── sample_output.md     ← Example diagrams from django/django
+├── .gitignore
+├── .mcp.json                ← MCP server wiring
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── LICENSE                  ← MIT
+├── manifest.json            ← MCPB bundle manifest
+├── pyproject.toml           ← Packaging, pytest, ruff, mypy config
+├── README.md
+└── SECURITY.md
+```
+
+---
+
+## License
+
+[MIT](LICENSE) © github-code-analyzer contributors
