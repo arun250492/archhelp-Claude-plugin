@@ -1,0 +1,49 @@
+{
+  "name": "archhelp-claude-plugin",
+  "version": "1.0.0",
+  "description": "Scan any GitHub repository and generate technical architecture diagrams, data flow diagrams, ER diagrams, component maps, and sequence diagrams.",
+  "command": "python",
+  "args": ["server/main.py"],
+  "env": {
+    "GITHUB_TOKEN": {
+      "description": "GitHub Personal Access Token for higher API rate limits. Get one at https://github.com/settings/tokens (read:repo scope). Without this, you are limited to 60 unauthenticated requests/hour.",
+      "required": false
+    }
+  },
+  "capabilities": {
+    "tools": [
+      {
+        "name": "analyze_repository",
+        "description": "Analyze a GitHub repository and generate ALL diagrams at once: architecture, data flow, component map, ER diagram, sequence diagram, and deployment diagram."
+      },
+      {
+        "name": "generate_architecture_diagram",
+        "description": "Generate a system architecture diagram (Mermaid) for a GitHub repository."
+      },
+      {
+        "name": "generate_data_flow_diagram",
+        "description": "Generate a data flow diagram showing the request lifecycle for a GitHub repository."
+      },
+      {
+        "name": "generate_er_diagram",
+        "description": "Generate an Entity-Relationship diagram by scanning ORM model definitions."
+      },
+      {
+        "name": "generate_sequence_diagram",
+        "description": "Generate a sequence diagram showing request/response flow through the system."
+      },
+      {
+        "name": "generate_component_diagram",
+        "description": "Generate a component/module dependency diagram from import analysis."
+      },
+      {
+        "name": "generate_deployment_diagram",
+        "description": "Generate a deployment/infrastructure diagram from Docker, Kubernetes, Terraform configs."
+      },
+      {
+        "name": "get_repo_overview",
+        "description": "Get a plain-text structural overview of a GitHub repository."
+      }
+    ]
+  }
+}

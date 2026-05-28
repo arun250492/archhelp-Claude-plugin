@@ -1,0 +1,115 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "release/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint & type-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dev dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Ruff lint
+        run: ruff check server/ tests/
+
+      - name: Ruff format check
+        run: ruff format --check server/ tests/
+
+      - name: Mypy type-check
+        run: mypy server/
+
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dev dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Run tests with coverage
+        run: pytest --cov=server --cov-report=xml --cov-fail-under=80
+
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v4
+        if: matrix.python-version == '3.12'
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+
+  security:
+    name: Security scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install bandit
+        run: pip install bandit[toml]
+
+      - name: Run bandit
+        run: bandit -r server/ -ll -ii --skip B101
+
+  validate-plugin:
+    name: Validate plugin manifest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check plugin.json exists
+        run: test -f .claude-plugin/plugin.json
+
+      - name: Validate plugin.json syntax
+        run: python -c "import json, sys; json.load(open('.claude-plugin/plugin.json')); print('plugin.json OK')"
+
+      - name: Check .mcp.json exists
+        run: test -f .mcp.json
+
+      - name: Validate .mcp.json syntax
+        run: python -c "import json; json.load(open('.mcp.json')); print('.mcp.json OK')"
+
+      - name: Check manifest.json exists
+        run: test -f manifest.json
+
+      - name: Check README exists
+        run: test -f README.md
+
+      - name: Check LICENSE exists
+        run: test -f LICENSE
+
+      - name: Check server entry point exists
+        run: test -f server/main.py
+
+      - name: Syntax-check server package
+        run: python -c "import py_compile; [py_compile.compile(f, doraise=True) for f in ['server/main.py','server/analyzer.py','server/diagrams.py','server/github_client.py','server/security.py']]; print('All files OK')"
+        env:
+          PYTHONPATH: .
